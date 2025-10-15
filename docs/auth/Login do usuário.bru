@@ -1,0 +1,23 @@
+meta {
+  name: Login do usuário
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3333/api/auth/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "gabohubs@gmail.com",
+    "password": "123456"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
