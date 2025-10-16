@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { loginService } from '../../support/services/login'
+import { authService } from '../../support/services/auth'
 
 test.describe('POST /auth/login', () => {
 
-    let login
-    
+    let auth
+
     test.beforeEach(({ request }) => {
-        login = loginService(request)
+        auth = authService(request)
     })
 
     test('deve fazer login com sucesso', async ({ request }) => {
@@ -16,7 +16,7 @@ test.describe('POST /auth/login', () => {
             password: "123456"
         }
 
-        const response = await login.auth(user)
+        const response = await auth.login(user)
 
         expect(response.status()).toBe(200)
 
@@ -25,5 +25,5 @@ test.describe('POST /auth/login', () => {
         // expect(responseBody).toHaveProperty('token')
     })
 
-        
+
 })
