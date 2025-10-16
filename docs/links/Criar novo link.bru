@@ -1,0 +1,23 @@
+meta {
+  name: Criar novo link
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3333/api/links
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "original_url": "https://www.instagram.com/dierokreator",
+    "title": "Meu IG"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
