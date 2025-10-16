@@ -1,19 +1,10 @@
-// @ts-check
 import { test, expect } from '@playwright/test'
-import { faker } from '@faker-js/faker'
+import { getUser } from '../../support/factories/user'
 
 test.describe('POST /auth/resgister', () => {
   test('deve cadastrar um novo usuário', async ({ request }) => {
 
-    const firstName = faker.person.firstName()
-    const lastName = faker.person.lastName()
-
-    const user = {
-      // name: firstName + ' ' + lastName,
-      name: `${firstName} ${lastName}`, // interpolation
-      email: faker.internet.email({ firstName, lastName }).toLowerCase(),
-      password: "123456"
-    }
+    const user = getUser()
 
     const response = await request.post('http://localhost:3333/api/auth/register', {
       data: user
@@ -32,15 +23,7 @@ test.describe('POST /auth/resgister', () => {
 
   test('não deve cadastrar quando o email já estiver em uso', async ({ request }) => {
 
-    const firstName = faker.person.firstName()
-    const lastName = faker.person.lastName()
-
-    const user = {
-      // name: firstName + ' ' + lastName,
-      name: `${firstName} ${lastName}`, // interpolation
-      email: faker.internet.email({ firstName, lastName }).toLowerCase(),
-      password: "123456"
-    }
+    const user = getUser()
 
     const preCondition = await request.post('http://localhost:3333/api/auth/register', {
       data: user
