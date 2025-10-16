@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { authService } from '../../support/services/auth'
 import { linkService } from '../../support/services/links'
+import { getUserWithLink } from '../../support/factories/user'
 
 test.describe('POST /api/links', () => {
 
@@ -9,18 +10,10 @@ test.describe('POST /api/links', () => {
         const auth = authService(request)
         const link = linkService(request)
 
-        const user = {
-            name: "Gabo Hubs",
-            email: "gabohubs@gmail.com",
-            password: "123456",
-            link: {
-                original_url: "https://www.instagram.com/dierokreator",
-                title: "Meu IG"
-            }
-        }
+        const user = getUserWithLink()
 
+        await auth.createUser(user)
         const token = await auth.getToken(user)
-
         const response = await link.createLink(user.link, token)
 
         expect(response.status()).toBe(201)
