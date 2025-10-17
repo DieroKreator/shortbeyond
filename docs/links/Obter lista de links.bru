@@ -1,0 +1,27 @@
+meta {
+  name: Obter lista de links
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3333/api/links
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDFLN1NNOTIwNjVOR1NDTkZOMEpDSEM0M1QiLCJleHAiOjE3NjA4MDkzNzgsImlhdCI6MTc2MDcyMjk3OH0.NQRkfCX2IZ081q0-jqlhNDtQO28CoMu9r8Jevoivjvs
+}
+
+body:json {
+  {
+    "original_url": "https://www.instagram.com/dierokreator",
+    "title": "Meu IG"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
