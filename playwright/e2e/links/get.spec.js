@@ -3,7 +3,7 @@ import { test, expect } from '../../support/fixtures'
 import { getUserWithLinks } from '../../support/factories/user'
 
 test('dev retornar uma lista de links pre-encurtados', async ({ auth, links }) => {
-    const user = getUserWithLinks()
+    const user = getUserWithLinks(5)
 
     await auth.createUser(user)
     const token = await auth.getToken(user)
@@ -30,4 +30,22 @@ test('dev retornar uma lista de links pre-encurtados', async ({ auth, links }) =
 
         expect(link.short_code).toMatch(/^[a-zA-Z0-9]{5}$/)
     }
+})
+
+test('deve retornar uma lista vazia', async ({auth, links})=> {
+
+    const user = getUserWithLinks(0)
+
+    await auth.createUser(user)
+    const token = await auth.getToken(user)
+
+    const response = await links.getLinks(token)
+
+    expect(response.status()).toBe(200)
+
+    const body = await response.json()
+
+    expect(body.count).toBe(0)
+    expect(body.data).toHaveLength(0)
+    expect(body.message).toBe('Links Encurtados')
 })

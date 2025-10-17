@@ -28,7 +28,7 @@ export const getUserWithLink = () => {
     }
 }
 
-export const getUserWithLinks = () => {
+export const getUserWithLinks = (linksCount = 1) => {
     const firstName = faker.person.firstName()
     const lastName = faker.person.lastName()
 
@@ -37,9 +37,9 @@ export const getUserWithLinks = () => {
         name: `${firstName} ${lastName}`, // interpolation
         email: faker.internet.email({ firstName, lastName }).toLowerCase(),
         password: "123456",
-        links: faker.helpers.multiple(()=>({
+        links: faker.helpers.multiple(() => ({
             original_url: faker.internet.url(),
             title: faker.music.songName()
-        }), {count: 5})
+        }), { count: linksCount })
     }
 }
