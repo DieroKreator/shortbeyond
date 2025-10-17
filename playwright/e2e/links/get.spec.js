@@ -2,50 +2,53 @@ import { test, expect } from '../../support/fixtures'
 
 import { getUserWithLinks } from '../../support/factories/user'
 
-test('dev retornar uma lista de links pre-encurtados', async ({ auth, links }) => {
-    const user = getUserWithLinks(5)
+test.describe('GET /api/links', () => {
 
-    await auth.createUser(user)
-    const token = await auth.getToken(user)
+    test('dev retornar uma lista de links pre-encurtados', async ({ auth, links }) => {
+        const user = getUserWithLinks(5)
 
-    for (const link of user.links) {
-        await links.createLink(link, token)
-    }
+        await auth.createUser(user)
+        const token = await auth.getToken(user)
 
-    const response = await links.getLinks(token)
+        for (const link of user.links) {
+            await links.createLink(link, token)
+        }
 
-    expect(response.status()).toBe(200)
+        const response = await links.getLinks(token)
 
-    const body = await response.json()
+        expect(response.status()).toBe(200)
 
-    expect(body.message).toBe('Links Encurtados')
-    expect(body.count).toBe(user.links.length)
-    expect(Array.isArray(body.data)).toBeTruthy()
+        const body = await response.json()
 
-    for (const [index, link] of body.data.entries()) {
-        expect(link).toHaveProperty('id')
-        expect(link).toHaveProperty('original_url', user.links[index].original_url)
-        expect(link).toHaveProperty('short_code')
-        expect(link).toHaveProperty('title', user.links[index].title)
+        expect(body.message).toBe('Links Encurtados')
+        expect(body.count).toBe(user.links.length)
+        expect(Array.isArray(body.data)).toBeTruthy()
 
-        expect(link.short_code).toMatch(/^[a-zA-Z0-9]{5}$/)
-    }
-})
+        for (const [index, link] of body.data.entries()) {
+            expect(link).toHaveProperty('id')
+            expect(link).toHaveProperty('original_url', user.links[index].original_url)
+            expect(link).toHaveProperty('short_code')
+            expect(link).toHaveProperty('title', user.links[index].title)
 
-test('deve retornar uma lista vazia', async ({auth, links})=> {
+            expect(link.short_code).toMatch(/^[a-zA-Z0-9]{5}$/)
+        }
+    })
 
-    const user = getUserWithLinks(0)
+    test('deve retornar uma lista vazia', async ({ auth, links }) => {
 
-    await auth.createUser(user)
-    const token = await auth.getToken(user)
+        const user = getUserWithLinks(0)
 
-    const response = await links.getLinks(token)
+        await auth.createUser(user)
+        const token = await auth.getToken(user)
 
-    expect(response.status()).toBe(200)
+        const response = await links.getLinks(token)
 
-    const body = await response.json()
+        expect(response.status()).toBe(200)
 
-    expect(body.count).toBe(0)
-    expect(body.data).toHaveLength(0)
-    expect(body.message).toBe('Links Encurtados')
+        const body = await response.json()
+
+        expect(body.count).toBe(0)
+        expect(body.data).toHaveLength(0)
+        expect(body.message).toBe('Links Encurtados')
+    })
 })
