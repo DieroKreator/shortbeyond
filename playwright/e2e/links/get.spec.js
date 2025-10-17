@@ -2,7 +2,7 @@ import { test, expect } from '../../support/fixtures'
 
 import { getUserWithLinks } from '../../support/factories/user'
 
-test.describe('GET /api/links', () => {
+test.describe('GET /links', () => {
 
     test('dev retornar uma lista de links pre-encurtados', async ({ auth, links }) => {
         const user = getUserWithLinks(5)
@@ -15,11 +15,9 @@ test.describe('GET /api/links', () => {
         }
 
         const response = await links.getLinks(token)
-
         expect(response.status()).toBe(200)
 
         const body = await response.json()
-
         expect(body.message).toBe('Links Encurtados')
         expect(body.count).toBe(user.links.length)
         expect(Array.isArray(body.data)).toBeTruthy()
@@ -35,18 +33,15 @@ test.describe('GET /api/links', () => {
     })
 
     test('deve retornar uma lista vazia', async ({ auth, links }) => {
-
         const user = getUserWithLinks(0)
 
         await auth.createUser(user)
         const token = await auth.getToken(user)
 
         const response = await links.getLinks(token)
-
         expect(response.status()).toBe(200)
 
         const body = await response.json()
-
         expect(body.count).toBe(0)
         expect(body.data).toHaveLength(0)
         expect(body.message).toBe('Links Encurtados')

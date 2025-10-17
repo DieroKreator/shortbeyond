@@ -1,0 +1,27 @@
+meta {
+  name: Remove um link encurtado
+  type: http
+  seq: 3
+}
+
+delete {
+  url: http://localhost:3333/api/links/01K7SQBTG0WMX00Q0FPXTVJZKG
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDFLN01KRVdYWjlTRFRDOUFXMzdITlZTTVAiLCJleHAiOjE3NjA4MTI1NDgsImlhdCI6MTc2MDcyNjE0OH0.eNRTVf4WpFRMEG-KZSepJpGmJ3rhOm7S6zFt-XUBvvk
+}
+
+body:json {
+  {
+    "original_url": "https://www.instagram.com/dierokreator",
+    "title": "Meu IG"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
