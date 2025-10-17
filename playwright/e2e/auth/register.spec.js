@@ -1,16 +1,9 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from '../../support/fixtures'
 import { getUser } from '../../support/factories/user'
-import { authService } from '../../support/services/auth'
 
 test.describe('POST /auth/resgister', () => {
 
-  let auth
-
-  test.beforeEach(({ request }) => {
-    auth = authService(request)
-  })
-
-  test('deve cadastrar um novo usuário', async ({ request }) => {
+  test('deve cadastrar um novo usuário', async ({ auth }) => {
 
     // Arrange
     const user = getUser()
@@ -31,7 +24,7 @@ test.describe('POST /auth/resgister', () => {
     expect(responseBody.user).not.toHaveProperty('password')
   })
 
-  test('não deve cadastrar quando o email já estiver em uso', async ({ request }) => {
+  test('não deve cadastrar quando o email já estiver em uso', async ({ auth }) => {
 
     // Arrange
     const user = getUser()
@@ -49,7 +42,7 @@ test.describe('POST /auth/resgister', () => {
     expect(responseBody).toHaveProperty('message', expectedMessage)
   })
 
-  test('não deve cadastrar quando o email é incorreto', async ({ request }) => {
+  test('não deve cadastrar quando o email é incorreto', async ({ auth }) => {
 
     const user = {
       name: "Gabo Hubs",
@@ -66,7 +59,7 @@ test.describe('POST /auth/resgister', () => {
     expect(responseBody).toHaveProperty('message', expectedMessage)
   })
 
-  test('não deve cadastrar quando o nome não é informado', async ({ request }) => {
+  test('não deve cadastrar quando o nome não é informado', async ({ auth }) => {
 
     const user = {
       email: "gabohubs@gmail.com",
@@ -82,7 +75,7 @@ test.describe('POST /auth/resgister', () => {
     expect(responseBody).toHaveProperty('message', expectedMessage)
   })
 
-  test('não deve cadastrar quando o email não é informado', async ({ request }) => {
+  test('não deve cadastrar quando o email não é informado', async ({ auth }) => {
 
     const user = {
       name: "Gabo Hubs",
@@ -98,7 +91,7 @@ test.describe('POST /auth/resgister', () => {
     expect(responseBody).toHaveProperty('message', expectedMessage)
   })
 
-  test('não deve cadastrar quando a senha não é informada', async ({ request }) => {
+  test('não deve cadastrar quando a senha não é informada', async ({ auth }) => {
 
     const user = {
       name: "Gabo Hubs",
