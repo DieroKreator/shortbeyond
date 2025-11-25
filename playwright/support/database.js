@@ -1,9 +1,11 @@
-const { Pool } = require('pg');
-const { faker } = require('@faker-js/faker');
-const bcrypt = require('bcrypt');
-const { ulid } = require('ulid');
+import pkg from 'pg';
+const { Pool } = pkg;
+import bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
+import { ulid } from 'ulid';
+import dotenv from 'dotenv';
 
-require('dotenv').config();
+dotenv.config();
 
 const pool = new Pool({
     user: process.env.DB_USER,
@@ -104,4 +106,4 @@ async function cleanupTestData() {
     }
 }
 
-module.exports = { insertTestUsers, cleanupTestData };
+export { insertTestUsers, cleanupTestData };
