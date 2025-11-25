@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 import { ulid } from 'ulid';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
@@ -17,16 +19,18 @@ const pool = new Pool({
 
 async function insertTestUsers() {
     const client = await pool.connect();
+    const plainPassword = 'pwd123';
+    
     try {
+        console.log('Iniciando inserção de 2000 usuários...');
         await client.query('BEGIN');
 
-        // Criptografa a senha uma vez para reutilizar
-        const hashedPassword = await bcrypt.hash('pwd123', 10);
-
-        // Prepara os valores para inserção em lote
+        const hashedPassword = await bcrypt.hash(plainPassword, 10);
         const users = [];
-        for (let i = 0; i < 2000; i++) {
-            const userId = ulid();
+        const emailSet = new Set();
+
+        // Gera usuários únicos
+        while (users.length < 2000) {
             const firstName = faker.person.firstName();
             const lastName = faker.person.lastName();
             const email = faker.internet.email({
@@ -35,19 +39,25 @@ async function insertTestUsers() {
                 provider: 'qtech.dev'
             }).toLowerCase();
 
-            users.push({
-                id: userId,
-                email,
-                password: hashedPassword,
-                name: `${firstName} ${lastName}`
-            });
+            // Garante emails únicos
+            if (!emailSet.has(email)) {
+                emailSet.add(email);
+                users.push({
+                    id: ulid(),
+                    email,
+                    password: hashedPassword,
+                    name: `${firstName} ${lastName}`,
+                    plainPassword
+                });
+            }
         }
 
-        // Inserção em lote (mais eficiente)
+        // Inserção em lote otimizada
         const batchSize = 100;
+        let insertedCount = 0;
+
         for (let i = 0; i < users.length; i += batchSize) {
             const batch = users.slice(i, i + batchSize);
-            
             const values = [];
             const placeholders = [];
             
@@ -63,23 +73,68 @@ async function insertTestUsers() {
                 ON CONFLICT (email) DO NOTHING
             `;
 
-            await client.query(query, values);
+            const result = await client.query(query, values);
+            insertedCount += result.rowCount;
+            
+            // Progresso
+            if ((i + batchSize) % 500 === 0 || i + batchSize >= users.length) {
+                console.log(`Progresso: ${Math.min(i + batchSize, users.length)}/2000 usuários processados`);
+            }
         }
 
         await client.query('COMMIT');
-        console.log('2000 usuários inseridos com sucesso!');
+        console.log(`✓ ${insertedCount} usuários inseridos com sucesso!`);
+
+        // Gera arquivo CSV
+        await generateCSV(users);
+
+        return { insertedCount, totalGenerated: users.length };
     } catch (err) {
         await client.query('ROLLBACK');
-        console.error('Erro ao inserir usuários:', err);
+        console.error('✗ Erro ao inserir usuários:', err.message);
         throw err;
     } finally {
         client.release();
     }
 }
 
+async function generateCSV(users) {
+    try {
+        const csvDir = path.resolve('data');
+        
+        // Cria diretório se não existir
+        if (!fs.existsSync(csvDir)) {
+            fs.mkdirSync(csvDir, { recursive: true });
+        }
+
+        const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
+        const csvPath = path.join(csvDir, `users-${timestamp}.csv`);
+
+        // Cabeçalho CSV
+        let csvContent = 'name,email,password\n';
+
+        // Adiciona dados
+        users.forEach(user => {
+            const name = `"${user.name.replace(/"/g, '""')}"`;
+            const email = user.email;
+            const password = user.plainPassword;
+            csvContent += `${name},${email},${password}\n`;
+        });
+
+        fs.writeFileSync(csvPath, csvContent, 'utf8');
+        console.log(`✓ Arquivo CSV gerado: ${csvPath}`);
+        
+        return csvPath;
+    } catch (err) {
+        console.error('✗ Erro ao gerar CSV:', err.message);
+        throw err;
+    }
+}
+
 async function cleanupTestData() {
     const client = await pool.connect();
     try {
+        console.log('Removendo usuários de teste...');
         await client.query('BEGIN');
 
         const query = `
@@ -89,18 +144,22 @@ async function cleanupTestData() {
             delete_links AS (
                 DELETE FROM links
                 WHERE user_id IN (SELECT id FROM usuarios_para_deletar)
+                RETURNING *
             )
             DELETE FROM users
-            WHERE id IN (SELECT id FROM usuarios_para_deletar);
+            WHERE id IN (SELECT id FROM usuarios_para_deletar)
+            RETURNING *;
         `;
 
-        await client.query(query);
-
+        const result = await client.query(query);
         await client.query('COMMIT');
-        console.log('Usuários e links de teste removidos com sucesso.');
+        
+        console.log(`✓ ${result.rowCount} usuários e seus links removidos com sucesso.`);
+        return result.rowCount;
     } catch (err) {
         await client.query('ROLLBACK');
-        console.error('Erro ao remover dados de teste:', err);
+        console.error('✗ Erro ao remover dados de teste:', err.message);
+        throw err;
     } finally {
         client.release();
     }
