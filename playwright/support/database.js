@@ -30,7 +30,7 @@ async function insertTestUsers() {
         const emailSet = new Set();
 
         // Gera usuários únicos
-        while (users.length < 2000) {
+        while (users.length < 4000) {
             const firstName = faker.person.firstName();
             const lastName = faker.person.lastName();
             const email = faker.internet.email({
