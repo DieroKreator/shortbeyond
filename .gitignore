@@ -1,8 +1,22 @@
+# Node.js modules
+node_modules/
+.npm
 
 # Playwright
-node_modules/
 /test-results/
 /playwright-report/
-/blob-report/
 /playwright/.cache/
 /playwright/.auth/
+package-lock.json
+
+# OS generated files
+.DS_Store
+
+# Environment variables
+.env
+
+# Blob storage files
+/blob-report/
+
+storageState.json
+.auth/
